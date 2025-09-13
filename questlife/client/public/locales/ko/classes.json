@@ -1,0 +1,59 @@
+{
+  "templates": {
+    "warrior": "전사",
+    "mage": "마법사",
+    "rogue": "도적",
+    "healer": "힐러",
+    "ranger": "레인저",
+    "scholar": "학자",
+    "creator": "창조자",
+    "explorer": "탐험가"
+  },
+  "attributes": {
+    "strength": "힘",
+    "wisdom": "지혜",
+    "creativity": "창의력",
+    "endurance": "지구력",
+    "agility": "민첩성",
+    "intelligence": "지능",
+    "charisma": "매력"
+  },
+  "messages": {
+    "levelUp": "레벨 업!",
+    "newLevel": "Level {{level}}에 도달했습니다!",
+    "classUnlocked": "새로운 클래스 해금: {{className}}",
+    "skillUnlocked": "새로운 스킬 해금: {{skillName}}",
+    "evolutionAvailable": "진화 가능!",
+    "maxLevel": "최대 레벨 도달!",
+    "classCreated": "{{className}} 클래스가 생성되었습니다",
+    "classEvolved": "클래스가 진화했습니다!"
+  },
+  "skills": {
+    "passive": "패시브 스킬",
+    "active": "액티브 스킬",
+    "ultimate": "궁극기",
+    "unlockAt": "Level {{level}}에 해금",
+    "maxRank": "최대 랭크",
+    "currentRank": "현재 랭크"
+  },
+  "evolution": {
+    "title": "클래스 진화",
+    "requirements": "진화 조건",
+    "selectBase": "기본 클래스 선택",
+    "selectSecond": "두 번째 클래스 선택",
+    "preview": "미리보기",
+    "confirm": "진화 확인",
+    "requiresLevel30": "두 클래스 모두 Level 30 필요"
+  },
+  "labels": {
+    "level": "레벨",
+    "exp": "경험치",
+    "nextLevel": "다음 레벨까지",
+    "totalExp": "총 경험치",
+    "powerLevel": "전투력",
+    "classType": "클래스 타입",
+    "mainClass": "메인 클래스",
+    "subClass": "서브 클래스",
+    "ultimateGoal": "최종 목표"
+  }
+}

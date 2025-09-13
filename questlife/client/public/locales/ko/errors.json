@@ -1,0 +1,45 @@
+{
+  "validation": {
+    "required": "이 필드는 필수입니다",
+    "invalidEmail": "유효한 이메일 주소를 입력하세요",
+    "passwordTooShort": "비밀번호는 최소 {{min}}자 이상이어야 합니다",
+    "passwordMismatch": "비밀번호가 일치하지 않습니다",
+    "usernameTaken": "이미 사용 중인 사용자명입니다",
+    "invalidGoal": "유효한 목표를 입력하세요",
+    "goalTooShort": "목표는 최소 {{min}}자 이상이어야 합니다",
+    "goalTooLong": "목표는 최대 {{max}}자까지 입력 가능합니다"
+  },
+  "network": {
+    "connectionError": "연결 오류가 발생했습니다",
+    "timeout": "요청 시간이 초과되었습니다",
+    "serverError": "서버 오류가 발생했습니다",
+    "notFound": "요청한 리소스를 찾을 수 없습니다",
+    "unauthorized": "인증이 필요합니다",
+    "forbidden": "접근 권한이 없습니다",
+    "rateLimited": "너무 많은 요청입니다. 잠시 후 다시 시도하세요"
+  },
+  "system": {
+    "unexpected": "예기치 않은 오류가 발생했습니다",
+    "maintenance": "시스템 점검 중입니다",
+    "outdatedVersion": "앱 버전을 업데이트해주세요",
+    "unsupportedBrowser": "지원하지 않는 브라우저입니다",
+    "storageError": "저장 공간이 부족합니다",
+    "permissionDenied": "권한이 거부되었습니다"
+  },
+  "game": {
+    "questNotFound": "퀘스트를 찾을 수 없습니다",
+    "questExpired": "퀘스트가 만료되었습니다",
+    "questAlreadyCompleted": "이미 완료한 퀘스트입니다",
+    "insufficientLevel": "레벨이 부족합니다",
+    "classNotFound": "클래스를 찾을 수 없습니다",
+    "evolutionFailed": "진화에 실패했습니다",
+    "maxClassesReached": "최대 클래스 수에 도달했습니다"
+  },
+  "auth": {
+    "loginFailed": "로그인에 실패했습니다",
+    "invalidCredentials": "이메일 또는 비밀번호가 올바르지 않습니다",
+    "accountLocked": "계정이 잠겼습니다",
+    "sessionExpired": "세션이 만료되었습니다. 다시 로그인해주세요",
+    "registrationFailed": "회원가입에 실패했습니다"
+  }
+}

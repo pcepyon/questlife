@@ -1,0 +1,196 @@
+openapi: 3.0.0
+info:
+  title: QuestLife Korean Localization API
+  version: 1.1.0
+  description: API modifications for Korean localization support
+
+paths:
+  /api/locale:
+    get:
+      summary: Get current locale configuration
+      responses:
+        '200':
+          description: Current locale settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocaleConfig'
+
+  /api/translations/{namespace}:
+    get:
+      summary: Get translations for a namespace
+      parameters:
+        - name: namespace
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [common, quests, classes, errors, gaming]
+      responses:
+        '200':
+          description: Translation keys for namespace
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+
+  /api/goals/analyze:
+    post:
+      summary: Analyze Korean language goal (modified)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                goal:
+                  type: string
+                  description: Goal text in Korean
+                locale:
+                  type: string
+                  enum: [ko]
+                  default: ko
+      responses:
+        '200':
+          description: Localized character class
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocalizedCharacterClass'
+
+  /api/quests:
+    get:
+      summary: Get localized quests (modified)
+      parameters:
+        - name: locale
+          in: query
+          schema:
+            type: string
+            enum: [ko]
+            default: ko
+      responses:
+        '200':
+          description: Localized quest list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LocalizedQuest'
+
+  /api/classes:
+    get:
+      summary: Get localized character classes (modified)
+      parameters:
+        - name: locale
+          in: query
+          schema:
+            type: string
+            enum: [ko]
+            default: ko
+      responses:
+        '200':
+          description: Localized character classes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LocalizedCharacterClass'
+
+components:
+  schemas:
+    LocaleConfig:
+      type: object
+      required:
+        - locale
+        - dateFormat
+        - numberFormat
+        - mixedTerms
+      properties:
+        locale:
+          type: string
+          enum: [ko]
+        dateFormat:
+          type: string
+          example: "YYYY년 MM월 DD일"
+        numberFormat:
+          type: string
+          enum: [international]
+        mixedTerms:
+          type: array
+          items:
+            type: string
+          example: ["Level", "EXP", "HP", "Quest"]
+
+    LocalizedQuest:
+      allOf:
+        - $ref: '#/components/schemas/Quest'
+        - type: object
+          properties:
+            titleKo:
+              type: string
+              example: "일일 운동 퀘스트"
+            descriptionKo:
+              type: string
+              example: "30분 동안 운동하기"
+            rewardTextKo:
+              type: string
+              example: "100 EXP 획득"
+
+    LocalizedCharacterClass:
+      allOf:
+        - $ref: '#/components/schemas/CharacterClass'
+        - type: object
+          properties:
+            nameKo:
+              type: string
+              example: "전사 Warrior"
+            descriptionKo:
+              type: string
+              example: "강력한 물리 공격력을 가진 클래스"
+            skillNamesKo:
+              type: array
+              items:
+                type: string
+              example: ["강타", "방어 태세", "전사의 함성"]
+
+    Quest:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [daily, weekly, special]
+        xpReward:
+          type: integer
+        completed:
+          type: boolean
+
+    CharacterClass:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        level:
+          type: integer
+        currentXP:
+          type: integer
+        requiredXP:
+          type: integer
+        skills:
+          type: array
+          items:
+            type: string

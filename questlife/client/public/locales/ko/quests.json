@@ -1,0 +1,53 @@
+{
+  "types": {
+    "daily": "일일 퀘스트",
+    "weekly": "주간 퀘스트",
+    "monthly": "월간 퀘스트",
+    "urgent": "긴급 퀘스트",
+    "special": "특별 퀘스트",
+    "main": "메인 퀘스트",
+    "side": "사이드 퀘스트"
+  },
+  "status": {
+    "available": "수행 가능",
+    "inProgress": "진행 중",
+    "completed": "완료",
+    "expired": "만료됨",
+    "locked": "잠김",
+    "failed": "실패"
+  },
+  "messages": {
+    "questCompleted": "퀘스트 완료!",
+    "questAccepted": "퀘스트를 수락했습니다",
+    "questFailed": "퀘스트 실패",
+    "questExpired": "퀘스트가 만료되었습니다",
+    "newQuestAvailable": "새로운 퀘스트가 있습니다",
+    "allQuestsCompleted": "모든 퀘스트를 완료했습니다!",
+    "xpGained": "{{amount}} XP 획득!",
+    "rewardReceived": "보상을 받았습니다"
+  },
+  "labels": {
+    "difficulty": "난이도",
+    "reward": "보상",
+    "timeLimit": "제한 시간",
+    "timeRemaining": "남은 시간",
+    "requirements": "요구 사항",
+    "description": "설명",
+    "objectives": "목표",
+    "progress": "진행도"
+  },
+  "actions": {
+    "accept": "수락",
+    "abandon": "포기",
+    "complete": "완료",
+    "claim": "보상 받기",
+    "viewDetails": "자세히 보기"
+  },
+  "difficulty": {
+    "easy": "쉬움",
+    "normal": "보통",
+    "hard": "어려움",
+    "extreme": "극한",
+    "legendary": "전설"
+  }
+}

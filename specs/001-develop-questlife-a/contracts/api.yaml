@@ -1,0 +1,660 @@
+openapi: 3.0.0
+info:
+  title: QuestLife API
+  version: 0.1.0
+  description: Gamified goal achievement platform API
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+
+paths:
+  # User endpoints
+  /user:
+    get:
+      summary: Get current user profile
+      tags: [User]
+      responses:
+        '200':
+          description: User profile with status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+
+    patch:
+      summary: Update user settings
+      tags: [User]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                theme:
+                  type: string
+                  enum: [dark, light]
+                notifications:
+                  type: boolean
+                soundEffects:
+                  type: boolean
+      responses:
+        '200':
+          description: Updated user settings
+
+  # Goal/Class generation endpoints
+  /goals/analyze:
+    post:
+      summary: Analyze goal and generate character class
+      tags: [Goals]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [goalText]
+              properties:
+                goalText:
+                  type: string
+                  description: Natural language goal description
+      responses:
+        '200':
+          description: Generated character class
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneratedClass'
+
+  /goals/{goalId}/modify:
+    post:
+      summary: Modify goal through LLM conversation
+      tags: [Goals]
+      parameters:
+        - name: goalId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message:
+                  type: string
+                  description: Natural language modification request
+      responses:
+        '200':
+          description: Modified goal and class details
+
+  # Character Class endpoints
+  /classes:
+    get:
+      summary: List all character classes
+      tags: [Classes]
+      responses:
+        '200':
+          description: List of character classes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CharacterClass'
+
+    post:
+      summary: Create new character class
+      tags: [Classes]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClassRequest'
+      responses:
+        '201':
+          description: Created character class
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharacterClass'
+
+  /classes/{classId}:
+    get:
+      summary: Get character class details
+      tags: [Classes]
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Character class details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharacterClass'
+
+    delete:
+      summary: Delete character class
+      tags: [Classes]
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Class deleted successfully
+
+  /classes/{classId}/evolve:
+    post:
+      summary: Evolve two mastered classes
+      tags: [Classes]
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [secondClassId]
+              properties:
+                secondClassId:
+                  type: string
+                evolutionName:
+                  type: string
+      responses:
+        '200':
+          description: Evolution created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassEvolution'
+
+  # Quest endpoints
+  /quests:
+    get:
+      summary: List all quests
+      tags: [Quests]
+      parameters:
+        - name: classId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, active, completed, expired]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [daily, weekly, monthly, urgent, special]
+      responses:
+        '200':
+          description: List of quests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Quest'
+
+  /quests/{questId}/complete:
+    post:
+      summary: Mark quest as completed
+      tags: [Quests]
+      parameters:
+        - name: questId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Quest completion result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestCompletionResult'
+
+  /quests/generate:
+    post:
+      summary: Generate new quests for a class
+      tags: [Quests]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [classId]
+              properties:
+                classId:
+                  type: string
+                count:
+                  type: integer
+                  default: 5
+      responses:
+        '200':
+          description: Generated quests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Quest'
+
+  # Character Status endpoints
+  /status:
+    get:
+      summary: Get character status window
+      tags: [Status]
+      responses:
+        '200':
+          description: Character status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharacterStatus'
+
+  /status/level-up:
+    post:
+      summary: Process level up
+      tags: [Status]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [classId]
+              properties:
+                classId:
+                  type: string
+      responses:
+        '200':
+          description: Level up result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LevelUpResult'
+
+  # Progress endpoints
+  /progress/streak:
+    get:
+      summary: Get current streak information
+      tags: [Progress]
+      responses:
+        '200':
+          description: Streak information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressStreak'
+
+  /progress/achievements:
+    get:
+      summary: List achievements
+      tags: [Progress]
+      parameters:
+        - name: unlocked
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of achievements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Achievement'
+
+  # Skill Tree endpoints
+  /skills/{classId}:
+    get:
+      summary: Get skill tree for class
+      tags: [Skills]
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Skill tree
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillTree'
+
+  /skills/{classId}/unlock:
+    post:
+      summary: Unlock a skill
+      tags: [Skills]
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [skillId]
+              properties:
+                skillId:
+                  type: string
+      responses:
+        '200':
+          description: Skill unlocked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillUnlockResult'
+
+components:
+  schemas:
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        settings:
+          type: object
+          properties:
+            theme:
+              type: string
+              enum: [dark, light]
+            notifications:
+              type: boolean
+            soundEffects:
+              type: boolean
+        characterStatus:
+          $ref: '#/components/schemas/CharacterStatus'
+        currentStreak:
+          type: integer
+
+    GeneratedClass:
+      type: object
+      properties:
+        className:
+          type: string
+        description:
+          type: string
+        targetLevel:
+          type: integer
+        dailyQuests:
+          type: array
+          items:
+            type: string
+        weeklyChallenge:
+          type: string
+        ultimateGoal:
+          type: string
+        evolutionPaths:
+          type: array
+          items:
+            type: string
+
+    CharacterClass:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        level:
+          type: integer
+          minimum: 1
+          maximum: 30
+        currentXP:
+          type: integer
+        xpToNextLevel:
+          type: integer
+        status:
+          type: string
+          enum: [active, mastered, evolved]
+        targetLevel:
+          type: integer
+        ultimateGoal:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateClassRequest:
+      type: object
+      required: [name, description, targetLevel, ultimateGoal]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        targetLevel:
+          type: integer
+          minimum: 1
+          maximum: 30
+        ultimateGoal:
+          type: string
+        plannedEvolutions:
+          type: array
+          items:
+            type: string
+
+    Quest:
+      type: object
+      properties:
+        id:
+          type: string
+        classId:
+          type: string
+        type:
+          type: string
+          enum: [daily, weekly, monthly, urgent, special]
+        title:
+          type: string
+        description:
+          type: string
+        xpReward:
+          type: integer
+        status:
+          type: string
+          enum: [pending, active, completed, expired]
+        difficulty:
+          type: integer
+          minimum: 1
+          maximum: 5
+        levelTrigger:
+          type: integer
+        timeLimit:
+          type: integer
+        expiresAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    QuestCompletionResult:
+      type: object
+      properties:
+        quest:
+          $ref: '#/components/schemas/Quest'
+        xpGained:
+          type: integer
+        multiplier:
+          type: number
+        levelUp:
+          type: boolean
+        newLevel:
+          type: integer
+        streakBonus:
+          type: boolean
+        achievements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Achievement'
+
+    CharacterStatus:
+      type: object
+      properties:
+        strength:
+          type: integer
+        wisdom:
+          type: integer
+        creativity:
+          type: integer
+        discipline:
+          type: integer
+        charisma:
+          type: integer
+        totalPowerLevel:
+          type: integer
+        masteredClassCount:
+          type: integer
+        totalQuestsCompleted:
+          type: integer
+        permanentBonuses:
+          type: array
+          items:
+            type: object
+            properties:
+              attributeType:
+                type: string
+              value:
+                type: integer
+              source:
+                type: string
+
+    LevelUpResult:
+      type: object
+      properties:
+        newLevel:
+          type: integer
+        skillPointsEarned:
+          type: integer
+        unlockedFeatures:
+          type: array
+          items:
+            type: string
+        specialQuestUnlocked:
+          type: boolean
+
+    ClassEvolution:
+      type: object
+      properties:
+        id:
+          type: string
+        baseClass1:
+          $ref: '#/components/schemas/CharacterClass'
+        baseClass2:
+          $ref: '#/components/schemas/CharacterClass'
+        evolvedClass:
+          $ref: '#/components/schemas/CharacterClass'
+        evolutionName:
+          type: string
+        status:
+          type: string
+          enum: [planned, ready, completed]
+
+    Achievement:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+        rarity:
+          type: string
+          enum: [common, rare, epic, legendary]
+        unlockedAt:
+          type: string
+          format: date-time
+        xpBonus:
+          type: integer
+
+    ProgressStreak:
+      type: object
+      properties:
+        currentStreak:
+          type: integer
+        longestStreak:
+          type: integer
+        multiplier:
+          type: number
+        lastCompletionDate:
+          type: string
+          format: date
+        nextMilestone:
+          type: integer
+
+    SkillTree:
+      type: object
+      properties:
+        classId:
+          type: string
+        availablePoints:
+          type: integer
+        skills:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+              tier:
+                type: integer
+              requiredLevel:
+                type: integer
+              unlocked:
+                type: boolean
+              benefits:
+                type: object
+
+    SkillUnlockResult:
+      type: object
+      properties:
+        skill:
+          type: object
+        remainingPoints:
+          type: integer
+        newBenefits:
+          type: array
+          items:
+            type: string
