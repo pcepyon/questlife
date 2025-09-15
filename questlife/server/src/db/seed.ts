@@ -1,16 +1,18 @@
 import { v4 as uuidv4 } from 'uuid';
 import { getDatabase, initDatabase } from './index.js';
 
+const DEFAULT_USER_ID = 'default-user'; // Single user for local app
+
 async function seed() {
   console.log('🌱 Starting database seed...');
-  
+
   try {
     // Initialize database first
     await initDatabase();
     const db = getDatabase();
-    
-    // Create a test user
-    const userId = uuidv4();
+
+    // Use fixed ID for single-user local app
+    const userId = DEFAULT_USER_ID;
     const now = new Date().toISOString();
     
     console.log('Creating test user...');

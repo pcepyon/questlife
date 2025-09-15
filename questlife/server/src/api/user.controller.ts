@@ -1,15 +1,24 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { getDatabase } from '../db/index.js';
+import { authMiddleware, AuthRequest } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
-// GET /api/user - Get or create user
-router.get('/', async (req: Request, res: Response) => {
+// GET /api/user - Get or create user (public endpoint for initial setup)
+router.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.query.id as string || uuidv4();
+    let userId: string;
+
+    // For authenticated requests, use the authenticated user's ID
+    if (req.user?.userId) {
+      userId = req.user.userId;
+    } else {
+      // For unauthenticated requests during setup, allow creating a new user
+      userId = req.query.id as string || uuidv4();
+    }
+
     const db = getDatabase();
-    
     let user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId) as any;
     
     if (!user) {
@@ -58,11 +67,18 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// PATCH /api/user/:id/settings - Update user settings
-router.patch('/:id/settings', async (req: Request, res: Response) => {
+// PATCH /api/user/settings - Update user settings
+router.patch('/settings', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.params.id;
+    const userId = req.user?.userId;
     const settings = req.body;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: 'User not authenticated'
+      });
+    }
     
     const db = getDatabase();
     db.prepare('UPDATE users SET settings = ?, updated_at = ? WHERE id = ?')

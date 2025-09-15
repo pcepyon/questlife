@@ -1,0 +1,296 @@
+openapi: 3.0.0
+info:
+  title: QuestLife Navigation API
+  version: 0.2.0
+  description: Navigation state management for QuestLife 2.0
+
+paths:
+  /api/navigation:
+    get:
+      summary: 현재 네비게이션 상태 조회
+      description: 사용자의 현재 탭 위치와 경로를 조회합니다
+      tags: [Navigation]
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: 네비게이션 상태
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NavigationState'
+        401:
+          description: 인증 필요
+
+    put:
+      summary: 네비게이션 상태 업데이트
+      description: 탭 이동 또는 경로 변경을 기록합니다
+      tags: [Navigation]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tab]
+              properties:
+                tab:
+                  type: string
+                  enum: [dashboard, quests, character, goals]
+                  description: 이동할 탭
+                breadcrumb:
+                  type: string
+                  description: 추가할 경로 (선택)
+      responses:
+        200:
+          description: 업데이트 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NavigationState'
+        400:
+          description: 잘못된 탭 이름
+
+  /api/goals/{id}:
+    patch:
+      summary: 목표 수정
+      description: 기존 목표의 정보를 수정합니다
+      tags: [Goals]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoalUpdate'
+      responses:
+        200:
+          description: 수정 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goal'
+        400:
+          description: 잘못된 요청
+        404:
+          description: 목표를 찾을 수 없음
+
+    delete:
+      summary: 목표 삭제
+      description: 목표를 삭제(보관)합니다
+      tags: [Goals]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: permanent
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: 영구 삭제 여부
+      responses:
+        200:
+          description: 삭제 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "목표가 보관되었습니다"
+        404:
+          description: 목표를 찾을 수 없음
+
+  /api/quests/history:
+    get:
+      summary: 퀘스트 히스토리 조회
+      description: 완료 및 미완료 퀘스트 기록을 조회합니다
+      tags: [Quests]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: 시작 날짜
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: 종료 날짜
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [completed, missed, all]
+            default: all
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        200:
+          description: 퀘스트 히스토리
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quests:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/QuestHistory'
+                  total:
+                    type: integer
+                  completionRate:
+                    type: number
+                    description: 완료율 (%)
+
+components:
+  schemas:
+    NavigationState:
+      type: object
+      properties:
+        currentTab:
+          type: string
+          enum: [dashboard, quests, character, goals]
+          example: dashboard
+        lastTab:
+          type: string
+          enum: [dashboard, quests, character, goals]
+          nullable: true
+        breadcrumbs:
+          type: array
+          items:
+            type: string
+          example: ["대시보드", "오늘의 퀘스트"]
+        updatedAt:
+          type: string
+          format: date-time
+
+    GoalUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "매일 1시간 코딩하기"
+        description:
+          type: string
+        targetDate:
+          type: string
+          format: date
+        milestones:
+          type: array
+          items:
+            $ref: '#/components/schemas/Milestone'
+        isArchived:
+          type: boolean
+
+    Goal:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        classId:
+          type: integer
+        targetDate:
+          type: string
+          format: date
+        progressPercentage:
+          type: integer
+        isArchived:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Milestone:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+          example: "첫 프로젝트 완성"
+        targetDate:
+          type: string
+          format: date
+          nullable: true
+        completed:
+          type: boolean
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        xpReward:
+          type: integer
+          example: 500
+
+    QuestHistory:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        questType:
+          type: string
+          enum: [daily, weekly, special, urgent]
+        difficulty:
+          type: string
+        xpReward:
+          type: integer
+        status:
+          type: string
+          enum: [completed, missed, expired]
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        dueDate:
+          type: string
+          format: date-time
+        streakBonus:
+          type: number
+          description: 적용된 스트릭 보너스
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

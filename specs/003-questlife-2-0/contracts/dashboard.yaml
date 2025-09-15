@@ -1,0 +1,259 @@
+openapi: 3.0.0
+info:
+  title: QuestLife Dashboard API
+  version: 0.2.0
+  description: Dashboard data aggregation endpoints for QuestLife 2.0
+
+paths:
+  /api/dashboard:
+    get:
+      summary: 대시보드 데이터 조회
+      description: 메인 대시보드에 필요한 모든 데이터를 한 번에 조회합니다
+      tags: [Dashboard]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: refresh
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: 캐시 무시하고 새로 계산
+      responses:
+        200:
+          description: 대시보드 데이터
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardData'
+        401:
+          description: 인증 필요
+
+  /api/dashboard/quick-complete:
+    post:
+      summary: 빠른 퀘스트 완료
+      description: 대시보드에서 퀘스트를 빠르게 완료 처리합니다
+      tags: [Dashboard]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [questId]
+              properties:
+                questId:
+                  type: integer
+                  description: 완료할 퀘스트 ID
+                notes:
+                  type: string
+                  description: 완료 메모 (선택)
+      responses:
+        200:
+          description: 퀘스트 완료 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  xpGained:
+                    type: integer
+                  levelUp:
+                    type: boolean
+                  newLevel:
+                    type: integer
+                  streakUpdate:
+                    $ref: '#/components/schemas/StreakInfo'
+                  nextQuest:
+                    $ref: '#/components/schemas/QuestSummary'
+        400:
+          description: 잘못된 요청
+        404:
+          description: 퀘스트를 찾을 수 없음
+
+  /api/dashboard/stats:
+    get:
+      summary: 빠른 통계 조회
+      description: 대시보드 상단에 표시할 요약 통계를 조회합니다
+      tags: [Dashboard]
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: 통계 데이터
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuickStats'
+
+components:
+  schemas:
+    DashboardData:
+      type: object
+      properties:
+        todayQuests:
+          type: object
+          properties:
+            daily:
+              type: array
+              items:
+                $ref: '#/components/schemas/QuestWithProgress'
+              description: 오늘의 일일 퀘스트
+            urgent:
+              type: array
+              items:
+                $ref: '#/components/schemas/QuestWithProgress'
+              description: 긴급 퀘스트
+            upcoming:
+              type: array
+              items:
+                $ref: '#/components/schemas/QuestWithProgress'
+              description: 예정된 퀘스트
+        characterSummary:
+          type: object
+          properties:
+            level:
+              type: integer
+              example: 15
+            currentXP:
+              type: integer
+              example: 12500
+            nextLevelXP:
+              type: integer
+              example: 15000
+            primaryClass:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                  example: "코드 마법사"
+                level:
+                  type: integer
+                  example: 15
+            attributes:
+              type: object
+              properties:
+                strength:
+                  type: integer
+                  example: 45
+                wisdom:
+                  type: integer
+                  example: 62
+                creativity:
+                  type: integer
+                  example: 38
+                discipline:
+                  type: integer
+                  example: 71
+                charisma:
+                  type: integer
+                  example: 29
+        streakInfo:
+          $ref: '#/components/schemas/StreakInfo'
+        quickStats:
+          $ref: '#/components/schemas/QuickStats'
+
+    QuestWithProgress:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+          example: "알고리즘 문제 풀기"
+        description:
+          type: string
+        questType:
+          type: string
+          enum: [daily, weekly, special, urgent]
+        difficulty:
+          type: string
+          enum: [easy, medium, hard, legendary]
+        xpReward:
+          type: integer
+          example: 150
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 75
+        isCompletedToday:
+          type: boolean
+        streakDays:
+          type: integer
+          description: 연속 완료 일수
+        dueDate:
+          type: string
+          format: date-time
+
+    QuestSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        xpReward:
+          type: integer
+        difficulty:
+          type: string
+
+    StreakInfo:
+      type: object
+      properties:
+        currentStreak:
+          type: integer
+          example: 7
+          description: 현재 연속 일수
+        multiplier:
+          type: number
+          example: 3.0
+          description: 현재 경험치 배수
+        lastCompletedDate:
+          type: string
+          format: date
+          example: "2025-09-13"
+        willBreakAt:
+          type: string
+          format: date-time
+          description: 스트릭이 끊기는 시간
+        bestStreak:
+          type: integer
+          example: 30
+          description: 최고 기록
+
+    QuickStats:
+      type: object
+      properties:
+        questsCompletedToday:
+          type: integer
+          example: 5
+        totalXPToday:
+          type: integer
+          example: 750
+        levelProgress:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 83.3
+          description: 현재 레벨 진행률 (%)
+        powerLevel:
+          type: integer
+          example: 4250
+          description: 종합 전투력
+        weeklyCompletion:
+          type: number
+          example: 71.4
+          description: 주간 완료율 (%)
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

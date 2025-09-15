@@ -2,6 +2,9 @@ import OpenAI from 'openai';
 import crypto from 'crypto';
 import { getDatabase } from '../db/index.js';
 import { requireEnv } from '../load-env.js';
+import { GoalModel, Goal, CreateGoalInput, UpdateGoalInput, Milestone } from '../models/goal.model.js';
+import { DashboardService } from './dashboard.service.js';
+import { NavigationService } from './navigation.service.js';
 
 const apiKey = requireEnv('OPENAI_API_KEY');
 const openai = new OpenAI({ apiKey });
@@ -110,5 +113,409 @@ export async function analyzeGoal(goalText: string, locale: string = 'ko'): Prom
         { month: 3, description: "Achieve your first major milestone" }
       ]
     };
+  }
+}
+
+// Extended GoalService with CRUD operations and milestone management
+export class GoalService {
+  /**
+   * Create a new goal
+   */
+  static createGoal(input: CreateGoalInput): Goal {
+    try {
+      const goal = GoalModel.create(input);
+
+      // Invalidate dashboard cache since new goal affects dashboard data
+      DashboardService.invalidateCache(input.userId);
+
+      // Update navigation badges to reflect new goal
+      NavigationService.refreshAllBadges(input.userId);
+
+      return goal;
+    } catch (error: any) {
+      console.error('Create goal error:', error);
+      throw new Error(error.message || 'Failed to create goal');
+    }
+  }
+
+  /**
+   * Get goal by ID
+   */
+  static getGoalById(goalId: string, userId: string): Goal | null {
+    try {
+      const goal = GoalModel.findById(goalId);
+
+      // Verify ownership
+      if (goal && goal.userId !== userId) {
+        throw new Error('Access denied');
+      }
+
+      return goal;
+    } catch (error: any) {
+      console.error('Get goal error:', error);
+      throw new Error(error.message || 'Failed to get goal');
+    }
+  }
+
+  /**
+   * Get all goals for a user
+   */
+  static getUserGoals(userId: string, includeArchived: boolean = false): Goal[] {
+    try {
+      return GoalModel.findByUserId(userId, includeArchived);
+    } catch (error: any) {
+      console.error('Get user goals error:', error);
+      throw new Error(error.message || 'Failed to get user goals');
+    }
+  }
+
+  /**
+   * Update a goal
+   */
+  static updateGoal(goalId: string, userId: string, input: UpdateGoalInput): Goal | null {
+    try {
+      const updatedGoal = GoalModel.update(goalId, userId, input);
+
+      if (updatedGoal) {
+        // Invalidate dashboard cache since goal data changed
+        DashboardService.invalidateCache(userId);
+
+        // Update navigation badges
+        NavigationService.refreshAllBadges(userId);
+      }
+
+      return updatedGoal;
+    } catch (error: any) {
+      console.error('Update goal error:', error);
+      throw new Error(error.message || 'Failed to update goal');
+    }
+  }
+
+  /**
+   * Delete a goal (soft delete by default)
+   */
+  static deleteGoal(goalId: string, userId: string, hardDelete: boolean = false): boolean {
+    try {
+      const success = GoalModel.delete(goalId, userId, !hardDelete);
+
+      if (success) {
+        // Invalidate dashboard cache
+        DashboardService.invalidateCache(userId);
+
+        // Update navigation badges
+        NavigationService.refreshAllBadges(userId);
+      }
+
+      return success;
+    } catch (error: any) {
+      console.error('Delete goal error:', error);
+      throw new Error(error.message || 'Failed to delete goal');
+    }
+  }
+
+  /**
+   * Archive a goal
+   */
+  static archiveGoal(goalId: string, userId: string): boolean {
+    try {
+      const success = GoalModel.archive(goalId, userId);
+
+      if (success) {
+        // Update navigation badges
+        NavigationService.refreshAllBadges(userId);
+      }
+
+      return success;
+    } catch (error: any) {
+      console.error('Archive goal error:', error);
+      throw new Error(error.message || 'Failed to archive goal');
+    }
+  }
+
+  /**
+   * Unarchive a goal
+   */
+  static unarchiveGoal(goalId: string, userId: string): boolean {
+    try {
+      const success = GoalModel.unarchive(goalId, userId);
+
+      if (success) {
+        // Update navigation badges
+        NavigationService.refreshAllBadges(userId);
+      }
+
+      return success;
+    } catch (error: any) {
+      console.error('Unarchive goal error:', error);
+      throw new Error(error.message || 'Failed to unarchive goal');
+    }
+  }
+
+  /**
+   * Add milestone to a goal
+   */
+  static addMilestone(goalId: string, userId: string, milestone: Omit<Milestone, 'id' | 'completed'>): Goal | null {
+    try {
+      const goal = this.getGoalById(goalId, userId);
+      if (!goal) return null;
+
+      const newMilestone: Milestone = {
+        id: `milestone_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        title: milestone.title,
+        completed: false,
+        ...milestone
+      };
+
+      const milestones = goal.milestones || [];
+      milestones.push(newMilestone);
+
+      const input: UpdateGoalInput = { milestones };
+      return this.updateGoal(goalId, userId, input);
+    } catch (error: any) {
+      console.error('Add milestone error:', error);
+      throw new Error(error.message || 'Failed to add milestone');
+    }
+  }
+
+  /**
+   * Update milestone completion status
+   */
+  static updateMilestone(goalId: string, userId: string, milestoneId: string, completed: boolean): boolean {
+    try {
+      const goal = this.getGoalById(goalId, userId);
+      if (!goal) return false;
+
+      const success = GoalModel.updateMilestone(goalId, milestoneId, completed);
+
+      if (success) {
+        // Invalidate dashboard cache
+        DashboardService.invalidateCache(userId);
+
+        // Update navigation badges
+        NavigationService.refreshAllBadges(userId);
+      }
+
+      return success;
+    } catch (error: any) {
+      console.error('Update milestone error:', error);
+      throw new Error(error.message || 'Failed to update milestone');
+    }
+  }
+
+  /**
+   * Remove milestone from a goal
+   */
+  static removeMilestone(goalId: string, userId: string, milestoneId: string): Goal | null {
+    try {
+      const goal = this.getGoalById(goalId, userId);
+      if (!goal) return null;
+
+      const milestones = (goal.milestones || []).filter(m => m.id !== milestoneId);
+      const input: UpdateGoalInput = { milestones };
+
+      return this.updateGoal(goalId, userId, input);
+    } catch (error: any) {
+      console.error('Remove milestone error:', error);
+      throw new Error(error.message || 'Failed to remove milestone');
+    }
+  }
+
+  /**
+   * Get goal statistics for a user
+   */
+  static getGoalStats(userId: string): {
+    totalGoals: number;
+    activeGoals: number;
+    archivedGoals: number;
+    completedMilestones: number;
+    totalMilestones: number;
+    completionRate: number;
+  } {
+    try {
+      const stats = GoalModel.getUserStats(userId);
+      const allGoals = GoalModel.findByUserId(userId, true);
+
+      let completedMilestones = 0;
+      let totalMilestones = 0;
+      let archivedGoals = 0;
+
+      allGoals.forEach(goal => {
+        if (goal.archived) archivedGoals++;
+
+        if (goal.milestones) {
+          totalMilestones += goal.milestones.length;
+          completedMilestones += goal.milestones.filter(m => m.completed).length;
+        }
+      });
+
+      const completionRate = totalMilestones > 0 ? (completedMilestones / totalMilestones) * 100 : 0;
+
+      return {
+        totalGoals: stats.totalGoals,
+        activeGoals: stats.activeGoals,
+        archivedGoals,
+        completedMilestones,
+        totalMilestones,
+        completionRate: Math.round(completionRate)
+      };
+    } catch (error: any) {
+      console.error('Get goal stats error:', error);
+      return {
+        totalGoals: 0,
+        activeGoals: 0,
+        archivedGoals: 0,
+        completedMilestones: 0,
+        totalMilestones: 0,
+        completionRate: 0
+      };
+    }
+  }
+
+  /**
+   * Search goals by text
+   */
+  static searchGoals(userId: string, query: string, includeArchived: boolean = false): Goal[] {
+    try {
+      const goals = GoalModel.findByUserId(userId, includeArchived);
+      const searchQuery = query.toLowerCase();
+
+      return goals.filter(goal =>
+        goal.title.toLowerCase().includes(searchQuery) ||
+        goal.description?.toLowerCase().includes(searchQuery) ||
+        goal.milestones?.some(m => m.title.toLowerCase().includes(searchQuery))
+      );
+    } catch (error: any) {
+      console.error('Search goals error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get goals by priority
+   */
+  static getGoalsByPriority(userId: string, priority: 'low' | 'medium' | 'high'): Goal[] {
+    try {
+      const goals = GoalModel.findByUserId(userId, false);
+      return goals.filter(goal => goal.priority === priority);
+    } catch (error: any) {
+      console.error('Get goals by priority error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get goals with upcoming deadlines
+   */
+  static getGoalsWithUpcomingDeadlines(userId: string, daysAhead: number = 7): Goal[] {
+    try {
+      const goals = GoalModel.findByUserId(userId, false);
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() + daysAhead);
+
+      return goals.filter(goal => {
+        if (!goal.deadline) return false;
+        const deadline = new Date(goal.deadline);
+        return deadline <= cutoffDate && deadline > new Date();
+      }).sort((a, b) => {
+        const aDate = new Date(a.deadline!);
+        const bDate = new Date(b.deadline!);
+        return aDate.getTime() - bDate.getTime();
+      });
+    } catch (error: any) {
+      console.error('Get goals with upcoming deadlines error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get goals that need attention (no recent updates)
+   */
+  static getGoalsNeedingAttention(userId: string, daysThreshold: number = 7): Goal[] {
+    try {
+      const goals = GoalModel.findByUserId(userId, false);
+      const thresholdDate = new Date();
+      thresholdDate.setDate(thresholdDate.getDate() - daysThreshold);
+
+      return goals.filter(goal => {
+        const lastUpdate = new Date(goal.updatedAt);
+        return lastUpdate < thresholdDate;
+      });
+    } catch (error: any) {
+      console.error('Get goals needing attention error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Bulk update goal priorities
+   */
+  static bulkUpdatePriorities(userId: string, updates: Array<{ goalId: string; priority: 'low' | 'medium' | 'high' }>): number {
+    try {
+      let updated = 0;
+
+      for (const update of updates) {
+        try {
+          const result = this.updateGoal(update.goalId, userId, { priority: update.priority });
+          if (result) updated++;
+        } catch (error) {
+          console.error(`Failed to update priority for goal ${update.goalId}:`, error);
+        }
+      }
+
+      return updated;
+    } catch (error: any) {
+      console.error('Bulk update priorities error:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Export goals data (for backup/migration)
+   */
+  static exportGoals(userId: string): Goal[] {
+    try {
+      return GoalModel.findByUserId(userId, true); // Include archived
+    } catch (error: any) {
+      console.error('Export goals error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Import goals data (for backup/migration)
+   */
+  static importGoals(userId: string, goals: Omit<Goal, 'id' | 'userId' | 'createdAt' | 'updatedAt'>[]): number {
+    try {
+      let imported = 0;
+
+      for (const goalData of goals) {
+        try {
+          const input: CreateGoalInput = {
+            userId,
+            title: goalData.title,
+            description: goalData.description,
+            priority: goalData.priority,
+            deadline: goalData.deadline || undefined
+          };
+
+          const goal = this.createGoal(input);
+
+          // Add milestones if present
+          if (goalData.milestones && goalData.milestones.length > 0) {
+            const updateInput: UpdateGoalInput = { milestones: goalData.milestones };
+            this.updateGoal(goal.id, userId, updateInput);
+          }
+
+          imported++;
+        } catch (error) {
+          console.error(`Failed to import goal "${goalData.title}":`, error);
+        }
+      }
+
+      return imported;
+    } catch (error: any) {
+      console.error('Import goals error:', error);
+      return 0;
+    }
   }
 }

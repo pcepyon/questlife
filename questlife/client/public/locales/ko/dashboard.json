@@ -1,0 +1,126 @@
+{
+  "sections": {
+    "todayQuests": "오늘의 퀘스트",
+    "stats": "통계",
+    "quickActions": "빠른 실행",
+    "progress": "진행 상황",
+    "overview": "개요",
+    "recentActivity": "최근 활동",
+    "achievements": "업적",
+    "dailySummary": "일일 요약"
+  },
+  "stats": {
+    "xp": "XP",
+    "level": "레벨",
+    "streak": "연속일",
+    "power": "전투력",
+    "totalXP": "총 XP",
+    "currentLevel": "현재 레벨",
+    "currentStreak": "현재 연속",
+    "longestStreak": "최장 연속",
+    "completionRate": "완료율",
+    "averageLevel": "평균 레벨",
+    "totalClasses": "총 클래스",
+    "totalQuests": "총 퀘스트",
+    "completedQuests": "완료한 퀘스트",
+    "xpToday": "오늘 획득한 XP",
+    "questsToday": "오늘 완료한 퀘스트"
+  },
+  "greetings": {
+    "morning": "좋은 아침이에요!",
+    "afternoon": "좋은 오후에요!",
+    "evening": "좋은 저녁이에요!",
+    "night": "늦은 시간이네요!",
+    "default": "안녕하세요!"
+  },
+  "quickComplete": {
+    "title": "빠른 완료",
+    "button": "완료",
+    "completeButton": "퀘스트 완료",
+    "confirmTitle": "퀘스트 완료 확인",
+    "confirmMessage": "이 퀘스트를 완료하시겠습니까?",
+    "confirm": "완료",
+    "cancel": "취소",
+    "success": "퀘스트가 완료되었습니다!",
+    "xpGained": "{{amount}} XP 획득!",
+    "levelUp": "레벨업! 레벨 {{level}}",
+    "streakBonus": "연속 보너스 {{multiplier}}x",
+    "alreadyCompleted": "이미 완료된 퀘스트입니다",
+    "notFound": "퀘스트를 찾을 수 없습니다"
+  },
+  "todayQuests": {
+    "title": "오늘의 퀘스트",
+    "noQuests": "오늘 할 수 있는 퀘스트가 없습니다",
+    "completed": "완료됨",
+    "available": "수행 가능",
+    "inProgress": "진행 중",
+    "expired": "만료됨",
+    "allCompleted": "모든 퀘스트를 완료했습니다!",
+    "questsRemaining": "{{count}}개의 퀘스트가 남았습니다",
+    "newQuestIn": "{{time}}후 새 퀘스트",
+    "refreshIn": "{{time}}후 갱신"
+  },
+  "progress": {
+    "title": "진행 상황",
+    "daily": "일일 진행도",
+    "weekly": "주간 진행도",
+    "monthly": "월간 진행도",
+    "overall": "전체 진행도",
+    "xpProgress": "XP 진행도",
+    "levelProgress": "레벨 진행도",
+    "nextLevel": "다음 레벨까지",
+    "xpToNext": "{{xp}} XP 남음",
+    "completed": "{{current}}/{{total}} 완료"
+  },
+  "actions": {
+    "viewAll": "전체 보기",
+    "refresh": "새로고침",
+    "settings": "설정",
+    "createQuest": "퀘스트 생성",
+    "manageClasses": "클래스 관리",
+    "viewHistory": "기록 보기",
+    "exportData": "데이터 내보내기"
+  },
+  "widgets": {
+    "streakCard": "연속 기록",
+    "xpCard": "경험치",
+    "levelCard": "레벨",
+    "powerCard": "전투력",
+    "todayCard": "오늘",
+    "weeklyCard": "이번 주",
+    "monthlyCard": "이번 달"
+  },
+  "motivational": {
+    "keepGoing": "계속 전진하세요!",
+    "greatProgress": "훌륭한 진전이에요!",
+    "almostThere": "거의 다 왔어요!",
+    "wellDone": "잘하고 있어요!",
+    "strongStreak": "연속 기록이 대단해요!",
+    "levelUpSoon": "곧 레벨업이에요!",
+    "powerGrowing": "전투력이 성장하고 있어요!"
+  },
+  "timeOfDay": {
+    "morning": "아침",
+    "afternoon": "오후",
+    "evening": "저녁",
+    "night": "밤"
+  },
+  "loading": {
+    "dashboard": "대시보드 로딩 중...",
+    "stats": "통계 로딩 중...",
+    "quests": "퀘스트 로딩 중...",
+    "data": "데이터 로딩 중..."
+  },
+  "errors": {
+    "loadFailed": "대시보드 로딩에 실패했습니다",
+    "statsUnavailable": "통계를 불러올 수 없습니다",
+    "questsUnavailable": "퀘스트를 불러올 수 없습니다",
+    "completionFailed": "퀘스트 완료에 실패했습니다"
+  },
+  "empty": {
+    "noQuests": "오늘 할 퀘스트가 없습니다",
+    "noClasses": "생성된 클래스가 없습니다",
+    "noProgress": "아직 진행 상황이 없습니다",
+    "noActivity": "최근 활동이 없습니다"
+  }
+}

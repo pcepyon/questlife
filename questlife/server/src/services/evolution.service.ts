@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { getDatabase } from '../db/index.js';
 import { CharacterClass, ClassEvolution } from '@shared/types';
+import { DashboardService } from './dashboard.service.js';
 
 interface EvolveClassesInput {
   userId: string;
@@ -136,7 +137,10 @@ export async function evolveClasses(input: EvolveClassesInput): Promise<Characte
     INSERT INTO skill_trees (id, class_id, skills, available_points, total_points_earned)
     VALUES (?, ?, '[]', 1, 1)
   `).run(uuidv4(), evolvedClassId);
-  
+
+  // Invalidate dashboard cache since class evolution affects dashboard data
+  DashboardService.invalidateCache(input.userId);
+
   return evolvedClass;
 }
 

@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { getDatabase } from '../db/index.js';
 import { CharacterClass } from '@shared/types';
+import { DashboardService } from './dashboard.service.js';
 
 interface CreateClassInput {
   userId: string;
@@ -54,7 +55,10 @@ export async function createClass(input: CreateClassInput): Promise<CharacterCla
     INSERT INTO skill_trees (id, class_id, skills, available_points, total_points_earned)
     VALUES (?, ?, '[]', 0, 0)
   `).run(uuidv4(), classId);
-  
+
+  // Invalidate dashboard cache since new class affects dashboard data
+  DashboardService.invalidateCache(input.userId);
+
   return newClass;
 }
 
