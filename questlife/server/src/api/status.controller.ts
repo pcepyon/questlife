@@ -1,16 +1,20 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { getDatabase } from '../db/index.js';
 import { v4 as uuidv4 } from 'uuid';
+import { authMiddleware, AuthRequest } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
 // GET /api/status - Get character status for a user
-router.get('/', async (req: Request, res: Response): Promise<Response | void> => {
+router.get('/', authMiddleware, async (req: AuthRequest, res: Response): Promise<Response | void> => {
   try {
-    const userId = req.query.userId as string;
-    
+    const userId = req.user?.userId;
+
     if (!userId) {
-      return res.status(400).json({ error: 'userId is required' });
+      return res.status(401).json({
+        success: false,
+        error: 'User not authenticated'
+      });
     }
     
     const db = getDatabase();

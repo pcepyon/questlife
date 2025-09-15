@@ -1,16 +1,38 @@
-# QuestLife - Gamified Goal Achievement Platform
+# QuestLife 2.0 - Daily Quest Management Dashboard
 
-Transform your personal development goals into an epic RPG adventure!
+Transform your personal development goals into an epic RPG adventure with a dashboard-centered experience!
 
-## 🎮 Features
+## 🆕 Version 2.0 Features
+
+### Dashboard-First Design
+- **Central Dashboard Hub**: All daily activities in one place
+- **Quick Quest Completion**: Complete quests with one click
+- **Real-time Stats**: Track XP, levels, and streaks at a glance
+- **Today's Focus**: See your daily quests prominently displayed
+
+### Enhanced Security & Auth
+- **PIN Authentication**: Secure 4-6 digit PIN login system
+- **Session Management**: JWT-based sessions with auto-refresh
+- **Rate Limiting**: Protection against brute force attempts
+- **Session Persistence**: Stay logged in for 7 days
+
+### Improved UX
+- **Korean Localization**: Complete Korean UI translation (한국어 지원)
+- **Mobile Responsive**: Optimized for all screen sizes
+- **Loading States**: Smooth skeleton loaders and spinners
+- **Error Boundaries**: Graceful error handling with retry options
+- **Accessibility**: Full ARIA support and keyboard navigation
+
+## 🎮 Core Features
 
 - **AI-Powered Class Generation**: Enter your goals and our AI creates a custom RPG character class
 - **Quest System**: Daily, weekly, and special quests with XP rewards
 - **Character Progression**: Level up from 1-30 with visual progress tracking
-- **Streak System**: Build combos for XP multipliers (up to 5x)
+- **Streak System**: Build combos for XP multipliers (up to 3x)
 - **Character Attributes**: Track strength, wisdom, creativity, discipline, and charisma
 - **Class Evolution**: Combine two level-30 classes into advanced classes
-- **Dark Theme**: Beautiful dark mode UI with shadcn/ui components
+- **Goal Management**: Full CRUD operations for goals with milestone tracking
+- **Performance Optimized**: Dashboard loads in <200ms with caching
 
 ## 🚀 Quick Start
 

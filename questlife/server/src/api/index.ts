@@ -1,4 +1,7 @@
 import { Router } from 'express';
+import authRouter from './auth.js';
+import dashboardRouter from './dashboard.js';
+import navigationRouter from './navigation.js';
 import goalsRouter from './goals.controller.js';
 import classesRouter from './classes.controller.js';
 import questsRouter from './quests.controller.js';
@@ -16,6 +19,9 @@ router.get('/health', (_req, res) => {
 
 router.use('/', localeRouter);
 router.use('/', translationsRouter);
+router.use('/auth', authRouter);
+router.use('/dashboard', dashboardRouter);
+router.use('/navigation', navigationRouter);
 router.use('/goals', goalsRouter);
 router.use('/classes', classesRouter);
 router.use('/quests', questsRouter);

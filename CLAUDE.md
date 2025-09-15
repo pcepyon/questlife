@@ -17,8 +17,9 @@ questlife/
 ├── client/              # React frontend
 │   ├── src/
 │   │   ├── components/  # shadcn/ui + custom components
-│   │   ├── pages/      # Route pages
+│   │   ├── pages/      # Multi-page structure (NEW)
 │   │   ├── stores/     # Zustand state management
+│   │   ├── hooks/      # Auth hooks (NEW)
 │   │   ├── lib/        # Utilities
 │   │   └── services/   # API client
 │   └── tests/
@@ -27,6 +28,7 @@ questlife/
 │   │   ├── api/        # REST endpoints
 │   │   ├── services/   # Business logic
 │   │   ├── models/     # Data models
+│   │   ├── middleware/ # Auth middleware (NEW)
 │   │   ├── db/         # Database setup
 │   │   └── lib/        # Core libraries
 │   └── tests/
@@ -57,27 +59,36 @@ npm run typecheck       # TypeScript check
 ```
 
 ## Core Features
-1. **Goal Analysis**: Natural language → RPG class generation via LLM
-2. **Quest System**: Daily/weekly/special quests with XP rewards
-3. **Character Progression**: Levels 1-30, skill trees, attributes
-4. **Class Evolution**: Combine two level-30 classes
-5. **Streak System**: XP multipliers (up to 5x) for consecutive days
-6. **Character Status**: Strength, wisdom, creativity attributes
+1. **PIN Authentication**: 4-6 digit PIN with JWT sessions (NEW)
+2. **Dashboard-First**: Main hub for daily quest management (NEW)
+3. **Goal Analysis**: Natural language → RPG class generation via LLM
+4. **Quest System**: Daily/weekly/special quests with XP rewards
+5. **Character Progression**: Levels 1-30, skill trees, attributes
+6. **Class Evolution**: Combine two level-30 classes
+7. **Streak System**: 3x XP multipliers for consecutive days
+8. **Korean UI**: Complete Korean localization (i18n)
 
 ## Database Schema
-- `users`: User profiles and settings
+- `users`: User profiles with PIN settings
+- `user_sessions`: PIN auth sessions (NEW)
+- `navigation_state`: Tab navigation tracking (NEW)
+- `dashboard_cache`: Performance optimization (NEW)
 - `character_classes`: RPG classes (level 1-30)
 - `quests`: All quest types with XP rewards
-- `goals`: User goals and milestones
+- `goals`: User goals with CRUD support
 - `character_status`: Attributes and power level
 - `progress_streaks`: Streak tracking and multipliers
 
 ## API Endpoints
+- `POST /api/auth/setup-pin` - Initial PIN setup (NEW)
+- `POST /api/auth/verify-pin` - PIN verification (NEW)
+- `GET /api/dashboard` - Aggregated dashboard data (NEW)
+- `POST /api/dashboard/quick-complete` - Quick quest completion (NEW)
 - `POST /api/goals/analyze` - Generate class from goal
+- `PATCH/DELETE /api/goals/:id` - Goal CRUD operations (NEW)
 - `GET/POST /api/classes` - Manage character classes
 - `POST /api/quests/:id/complete` - Complete quest, gain XP
-- `GET /api/status` - Character status window
-- `POST /api/classes/:id/evolve` - Evolve classes at level 30
+- `GET /api/quests/history` - Quest history (NEW)
 
 ## UI Components (shadcn/ui)
 - `Card` - Quest cards, class cards
@@ -103,15 +114,17 @@ npm run typecheck       # TypeScript check
 4. Unit tests (calculations)
 
 ## Recent Changes
-- [2025-09-13] Korean localization planning (i18n setup)
-- [2025-09-10] Defined data model and API contracts
-- [2025-09-10] Created implementation plan with shadcn/ui focus
+- [2025-09-13] QuestLife 2.0 - Dashboard-centered redesign with PIN auth
+- [2025-09-13] Added navigation system and onboarding flow
+- [2025-09-12] Korean localization completed (branch 002)
 
 ## Development Focus
-- Use shadcn/ui components directly, no wrappers
-- Animations with Framer Motion for XP/level-ups
-- Local SQLite for simplicity (no cloud services)
-- TDD approach: tests before implementation
+- **Current Priority**: PIN auth → Navigation → Dashboard → UI enhancements
+- **UI Approach**: Dashboard-first, Korean-first interface
+- **Navigation**: React Router v6 with 4 main tabs
+- **Performance**: Dashboard caching, quick quest completion
+- **Testing**: TDD with contract tests first
+- **Components**: shadcn/ui directly, no wrappers
 
 ## Environment Variables
 ```env

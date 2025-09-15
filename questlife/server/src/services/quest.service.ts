@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getDatabase } from '../db/index.js';
 import { Quest } from '@shared/types';
 import { QUEST_XP_VALUES } from '@shared/constants';
+import { DashboardService } from './dashboard.service.js';
 
 export async function generateQuests(
   classId: string,
@@ -13,6 +14,10 @@ export async function generateQuests(
   const db = getDatabase();
   const quests: Quest[] = [];
   const now = new Date();
+
+  // Get userId from classId for cache invalidation
+  const classData = db.prepare('SELECT user_id FROM character_classes WHERE id = ?').get(classId) as any;
+  const userId = classData?.user_id;
   
   // Generate daily quests
   const dailyQuestCount = level <= 5 ? 3 : level <= 15 ? 4 : 5;
@@ -89,7 +94,12 @@ export async function generateQuests(
     quests.push(quest);
     insertQuest(db, quest);
   }
-  
+
+  // Invalidate dashboard cache if we generated any quests
+  if (userId && quests.length > 0) {
+    DashboardService.invalidateCache(userId);
+  }
+
   return quests;
 }
 
@@ -244,9 +254,12 @@ export async function completeQuest(questId: string, userId: string): Promise<{ 
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `).run(uuidv4(), userId, questId, baseXP, streak.multiplier, 'streak', xpGained);
   }
-  
-  return { 
-    xpGained, 
+
+  // Invalidate dashboard cache since quest completion affects dashboard data
+  DashboardService.invalidateCache(userId);
+
+  return {
+    xpGained,
     levelUp,
     streak: {
       current: streak.current_streak,
