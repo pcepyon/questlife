@@ -160,30 +160,33 @@ describe('XP Calculator', () => {
       const baseQuestXP = 50;
       const streakDays = 7;
       const urgentBonus = 25;
-      
+
       const multiplier = calculateStreakMultiplier(streakDays);
       expect(multiplier).toBe(2.0);
-      
+
       const totalXP = calculateTotalXP(baseQuestXP, multiplier, [urgentBonus]);
       expect(totalXP).toBe(150); // (50 + 25) * 2
-      
-      const currentLevelXP = 450; // Level 5, 450/500 XP
-      const newTotalXP = currentLevelXP + totalXP;
-      
-      const result = calculateLevelFromTotalXP(1500 + newTotalXP); // 1500 = XP to reach level 5
-      expect(result.level).toBe(6);
-      expect(result.currentXP).toBe(100); // 600 total - 500 for level 6
+
+      // Level 5 requires: 100+200+300+400+500 = 1500 XP total
+      // Current: 1500 + 450 = 1950 XP total
+      // After quest: 1950 + 150 = 2100 XP total
+      // Level 6 requires: 1500 + 600 = 2100 XP total
+      const totalAccumulatedXP = 1950 + totalXP; // 2100
+
+      const result = calculateLevelFromTotalXP(totalAccumulatedXP);
+      expect(result.level).toBe(7); // Level 7 with 0 XP
+      expect(result.currentXP).toBe(0); // Exactly at level 7
     });
 
     it('should handle perfect week bonus calculation', () => {
       const dailyQuests = [50, 50, 50, 50, 50, 50, 50]; // 7 days
       const perfectWeekBonus = 100;
       const streakMultiplier = 2.0; // 7-day streak
-      
+
       const weeklyXP = dailyQuests.reduce((sum, xp) => sum + xp, 0);
       const totalWithBonus = calculateTotalXP(weeklyXP, streakMultiplier, [perfectWeekBonus]);
-      
-      expect(totalWithBonus).toBe(800); // (350 + 100) * 2
+
+      expect(totalWithBonus).toBe(900); // (350 + 100) * 2 = 450 * 2 = 900
     });
   });
 });

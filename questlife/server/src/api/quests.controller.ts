@@ -41,8 +41,6 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response): Promise
       });
     }
     
-    const db = getDatabase();
-    
     // Check if quests exist for this class
     const existingQuests = db.prepare('SELECT * FROM quests WHERE class_id = ? AND status = ?')
       .all(classId, 'pending') as any[];
