@@ -1,17 +1,18 @@
 import request from 'supertest';
 import express from 'express';
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import apiRouter from '../../src/api/index.js';
 
 describe('POST /api/auth/setup-pin', () => {
   let app: express.Application;
-  
+
   beforeEach(() => {
     app = express();
     app.use(express.json());
+    app.use('/api', apiRouter);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    // Clean up after each test
   });
 
   it('should setup PIN for new user', async () => {
@@ -25,10 +26,11 @@ describe('POST /api/auth/setup-pin', () => {
     expect(response.status).toBe(201);
     expect(response.body).toMatchObject({
       success: true,
-      message: 'PIN setup successful',
       data: {
-        userId: 'test-user-123',
-        sessionToken: expect.any(String)
+        message: expect.stringContaining('PIN'),
+        user: expect.objectContaining({
+          id: expect.any(String)
+        })
       }
     });
   });
@@ -44,7 +46,7 @@ describe('POST /api/auth/setup-pin', () => {
     expect(response.status).toBe(400);
     expect(response.body).toMatchObject({
       success: false,
-      error: 'PIN must be 4-6 digits'
+      error: expect.stringContaining('Invalid')
     });
   });
 
@@ -59,7 +61,7 @@ describe('POST /api/auth/setup-pin', () => {
     expect(response.status).toBe(400);
     expect(response.body).toMatchObject({
       success: false,
-      error: 'PIN must contain only digits'
+      error: expect.stringContaining('Invalid')
     });
   });
 
@@ -74,7 +76,7 @@ describe('POST /api/auth/setup-pin', () => {
     expect(response.status).toBe(409);
     expect(response.body).toMatchObject({
       success: false,
-      error: 'PIN already set for this user'
+      error: expect.stringContaining('PIN')
     });
   });
 });

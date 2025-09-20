@@ -1,7 +1,6 @@
 import request from 'supertest';
 import express from 'express';
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-
+import apiRouter from '../../src/api/index.js';
 describe('PATCH /api/goals/:id', () => {
   let app: express.Application;
   const validToken = 'valid-jwt-token';
@@ -10,10 +9,10 @@ describe('PATCH /api/goals/:id', () => {
   beforeEach(() => {
     app = express();
     app.use(express.json());
-  });
+    app.use('/api', apiRouter);  });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    // Clean up after each test;
   });
 
   it('should update goal title', async () => {

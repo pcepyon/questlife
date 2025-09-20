@@ -1,7 +1,6 @@
 import request from 'supertest';
 import express from 'express';
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-
+import apiRouter from '../../src/api/index.js';
 describe('PUT /api/auth/change-pin', () => {
   let app: express.Application;
   const validToken = 'valid-jwt-token';
@@ -9,10 +8,10 @@ describe('PUT /api/auth/change-pin', () => {
   beforeEach(() => {
     app = express();
     app.use(express.json());
-  });
+    app.use('/api', apiRouter);  });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    // Clean up after each test;
   });
 
   it('should change PIN with valid current PIN', async () => {
