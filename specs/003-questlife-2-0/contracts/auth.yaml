@@ -1,0 +1,259 @@
+openapi: 3.0.0
+info:
+  title: QuestLife Authentication API
+  version: 0.2.0
+  description: PIN-based authentication endpoints for QuestLife 2.0
+
+paths:
+  /api/auth/setup-pin:
+    post:
+      summary: 초기 PIN 설정
+      description: 신규 사용자의 PIN을 설정합니다
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pin]
+              properties:
+                pin:
+                  type: string
+                  pattern: '^[0-9]{4,6}$'
+                  description: 4-6자리 숫자 PIN
+                  example: "1234"
+      responses:
+        201:
+          description: PIN 설정 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "PIN이 성공적으로 설정되었습니다"
+                  token:
+                    type: string
+                    description: JWT 인증 토큰
+                  user:
+                    $ref: '#/components/schemas/UserProfile'
+        400:
+          description: 잘못된 PIN 형식
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        409:
+          description: PIN이 이미 설정됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/verify-pin:
+    post:
+      summary: PIN 인증
+      description: PIN을 확인하고 세션을 생성합니다
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pin]
+              properties:
+                pin:
+                  type: string
+                  pattern: '^[0-9]{4,6}$'
+                  description: 사용자 PIN
+                deviceId:
+                  type: string
+                  description: 디바이스 식별자 (선택)
+                rememberMe:
+                  type: boolean
+                  default: false
+                  description: 30일 세션 유지
+      responses:
+        200:
+          description: 인증 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  token:
+                    type: string
+                    description: JWT 인증 토큰
+                  expiresAt:
+                    type: string
+                    format: date-time
+                  user:
+                    $ref: '#/components/schemas/UserProfile'
+        401:
+          description: PIN 불일치
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "PIN이 일치하지 않습니다"
+                  remainingAttempts:
+                    type: integer
+                    example: 4
+        423:
+          description: 계정 잠김 (실패 횟수 초과)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "너무 많은 시도로 계정이 잠겼습니다"
+                  lockedUntil:
+                    type: string
+                    format: date-time
+
+  /api/auth/change-pin:
+    put:
+      summary: PIN 변경
+      description: 기존 PIN을 새로운 PIN으로 변경합니다
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPin, newPin]
+              properties:
+                currentPin:
+                  type: string
+                  pattern: '^[0-9]{4,6}$'
+                newPin:
+                  type: string
+                  pattern: '^[0-9]{4,6}$'
+      responses:
+        200:
+          description: PIN 변경 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "PIN이 성공적으로 변경되었습니다"
+        400:
+          description: 잘못된 요청
+        401:
+          description: 현재 PIN 불일치
+        429:
+          description: 변경 제한 (24시간 내 재변경 불가)
+
+  /api/auth/logout:
+    post:
+      summary: 로그아웃
+      description: 현재 세션을 종료합니다
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: 로그아웃 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "로그아웃되었습니다"
+
+  /api/auth/session:
+    get:
+      summary: 세션 확인
+      description: 현재 세션 상태를 확인합니다
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: 세션 유효
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                    example: true
+                  user:
+                    $ref: '#/components/schemas/UserProfile'
+                  expiresAt:
+                    type: string
+                    format: date-time
+        401:
+          description: 세션 만료 또는 무효
+
+components:
+  schemas:
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        hasPin:
+          type: boolean
+        onboardingCompleted:
+          type: boolean
+        preferredLanguage:
+          type: string
+          enum: [ko, en]
+        createdAt:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+        code:
+          type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

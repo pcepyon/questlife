@@ -1,0 +1,109 @@
+{
+  "tabs": {
+    "dashboard": "대시보드",
+    "quests": "퀘스트",
+    "character": "캐릭터",
+    "goals": "목표",
+    "classes": "클래스",
+    "profile": "프로필",
+    "settings": "설정"
+  },
+  "breadcrumbs": {
+    "home": "홈",
+    "dashboard": "대시보드",
+    "quests": "퀘스트",
+    "character": "캐릭터",
+    "goals": "목표",
+    "classes": "클래스",
+    "profile": "프로필",
+    "settings": "설정",
+    "auth": "인증",
+    "onboarding": "시작하기"
+  },
+  "states": {
+    "active": "활성",
+    "visited": "방문함",
+    "notVisited": "미방문",
+    "locked": "잠김",
+    "available": "사용 가능"
+  },
+  "labels": {
+    "currentTab": "현재 탭",
+    "previousTab": "이전 탭",
+    "nextTab": "다음 탭",
+    "backTo": "{{tab}}로 돌아가기",
+    "goTo": "{{tab}}로 이동",
+    "lastVisited": "마지막 방문",
+    "firstVisit": "첫 방문"
+  },
+  "onboarding": {
+    "welcome": "환영합니다!",
+    "step1": "PIN 설정",
+    "step2": "대시보드 둘러보기",
+    "step3": "첫 번째 목표 설정",
+    "step4": "퀘스트 시작하기",
+    "completed": "온보딩 완료",
+    "skip": "건너뛰기",
+    "next": "다음",
+    "previous": "이전",
+    "finish": "완료",
+    "progress": "{{current}}/{{total}} 단계"
+  },
+  "shortcuts": {
+    "dashboard": "대시보드 (D)",
+    "quests": "퀘스트 (Q)",
+    "character": "캐릭터 (C)",
+    "goals": "목표 (G)",
+    "settings": "설정 (S)"
+  },
+  "notifications": {
+    "newQuest": "새로운 퀘스트가 있습니다",
+    "levelUp": "레벨 업!",
+    "streakBonus": "연속 보너스 달성",
+    "goalComplete": "목표 완료",
+    "newAchievement": "새로운 업적 달성"
+  },
+  "menu": {
+    "main": "메인 메뉴",
+    "user": "사용자 메뉴",
+    "quick": "빠른 메뉴",
+    "settings": "설정 메뉴",
+    "help": "도움말 메뉴"
+  },
+  "actions": {
+    "navigate": "이동",
+    "back": "뒤로",
+    "forward": "앞으로",
+    "refresh": "새로고침",
+    "close": "닫기",
+    "minimize": "최소화",
+    "maximize": "최대화"
+  },
+  "accessibility": {
+    "tabNavigation": "탭 내비게이션",
+    "mainContent": "메인 컨텐츠",
+    "sidebar": "사이드바",
+    "skipToContent": "콘텐츠로 건너뛰기",
+    "skipToNavigation": "내비게이션으로 건너뛰기"
+  },
+  "responsive": {
+    "mobileMenu": "모바일 메뉴",
+    "showMenu": "메뉴 보기",
+    "hideMenu": "메뉴 숨기기",
+    "tabletView": "태블릿 뷰",
+    "desktopView": "데스크톱 뷰"
+  },
+  "search": {
+    "placeholder": "검색...",
+    "noResults": "검색 결과가 없습니다",
+    "suggestions": "추천 검색어",
+    "recentSearches": "최근 검색"
+  },
+  "status": {
+    "online": "온라인",
+    "offline": "오프라인",
+    "loading": "로딩 중",
+    "error": "오류",
+    "syncing": "동기화 중"
+  }
+}

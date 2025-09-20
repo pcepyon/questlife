@@ -1,0 +1,50 @@
+{
+  "name": "questlife",
+  "version": "0.1.0",
+  "description": "Gamified goal achievement platform that transforms personal development into an RPG adventure",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "client:dev": "npm run dev -w client",
+    "server:dev": "npm run dev -w server",
+    "build": "npm run build -w shared && npm run build -w server && npm run build -w client",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "typecheck": "npm run typecheck --workspaces",
+    "db:init": "npm run db:init -w server",
+    "db:reset": "npm run db:reset -w server",
+    "db:seed": "npm run db:seed -w server"
+  },
+  "devDependencies": {
+    "@jest/globals": "^30.1.2",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/date-fns": "^2.5.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/supertest": "^6.0.3",
+    "concurrently": "^8.2.2",
+    "prettier": "^3.3.3",
+    "supertest": "^7.1.4",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.87.4",
+    "bcryptjs": "^3.0.2",
+    "date-fns": "^4.1.0",
+    "i18next": "^25.5.2",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "i18next-http-backend": "^3.0.2",
+    "jsonwebtoken": "^9.0.2",
+    "react-i18next": "^15.7.3",
+    "react-router-dom": "^7.9.1"
+  }
+}

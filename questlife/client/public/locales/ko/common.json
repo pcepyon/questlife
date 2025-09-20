@@ -1,0 +1,82 @@
+{
+  "buttons": {
+    "start": "시작하기",
+    "login": "로그인",
+    "signup": "회원가입",
+    "save": "저장",
+    "cancel": "취소",
+    "confirm": "확인",
+    "delete": "삭제",
+    "edit": "수정",
+    "back": "뒤로",
+    "next": "다음",
+    "complete": "완료",
+    "create": "생성"
+  },
+  "navigation": {
+    "home": "홈",
+    "quests": "퀘스트",
+    "character": "캐릭터",
+    "settings": "설정",
+    "profile": "프로필",
+    "logout": "로그아웃"
+  },
+  "forms": {
+    "email": "이메일",
+    "password": "비밀번호",
+    "username": "사용자명",
+    "goal": "목표",
+    "enterGoal": "목표를 입력하세요",
+    "selectClass": "클래스를 선택하세요",
+    "required": "필수 입력 항목입니다",
+    "invalidEmail": "유효한 이메일 주소를 입력하세요",
+    "passwordTooShort": "비밀번호는 최소 8자 이상이어야 합니다"
+  },
+  "status": {
+    "loading": "로딩 중...",
+    "success": "성공",
+    "error": "오류",
+    "processing": "처리 중...",
+    "completed": "완료됨",
+    "pending": "대기 중",
+    "inProgress": "진행 중"
+  },
+  "time": {
+    "today": "오늘",
+    "yesterday": "어제",
+    "tomorrow": "내일",
+    "week": "주",
+    "month": "월",
+    "year": "년",
+    "days": "일",
+    "hours": "시간",
+    "minutes": "분"
+  },
+  "app": {
+    "name": "퀘스트라이프",
+    "tagline": "목표를 서사적인 모험으로 변환하세요"
+  },
+  "sections": {
+    "activeQuests": "활성 퀘스트",
+    "yourClasses": "내 클래스",
+    "dailyQuests": "일일 퀘스트",
+    "weeklyChallenges": "주간 도전",
+    "characterStatus": "캐릭터 상태",
+    "available": "{{count}}개 가능"
+  },
+  "stats": {
+    "currentStreak": "현재 연속",
+    "bestStreak": "최고 연속",
+    "xpMultiplier": "XP 배율",
+    "combatPower": "전투력",
+    "strength": "힘",
+    "wisdom": "지혜",
+    "creativity": "창의력",
+    "intelligence": "지능",
+    "charm": "매력"
+  },
+  "level": {
+    "level": "레벨",
+    "xpToNext": "다음 레벨까지 {{xp}} XP"
+  }
+}
