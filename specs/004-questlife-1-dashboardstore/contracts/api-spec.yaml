@@ -1,0 +1,432 @@
+openapi: 3.0.0
+info:
+  title: QuestLife Data Persistence API
+  version: 1.0.0
+  description: API contracts for data persistence and dashboard integration
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+        code:
+          type: string
+
+    DashboardData:
+      type: object
+      required:
+        - user
+        - todayQuests
+        - weeklyQuests
+        - specialQuests
+        - streakInfo
+        - recentCompletions
+        - stats
+      properties:
+        user:
+          type: object
+          properties:
+            username:
+              type: string
+            level:
+              type: integer
+            currentXP:
+              type: integer
+            requiredXP:
+              type: integer
+            streak:
+              type: integer
+        todayQuests:
+          type: array
+          items:
+            $ref: '#/components/schemas/Quest'
+        weeklyQuests:
+          type: array
+          items:
+            $ref: '#/components/schemas/Quest'
+        specialQuests:
+          type: array
+          items:
+            $ref: '#/components/schemas/Quest'
+        streakInfo:
+          type: object
+          properties:
+            current:
+              type: integer
+            multiplier:
+              type: number
+            nextMilestone:
+              type: integer
+        recentCompletions:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestCompletion'
+        stats:
+          type: object
+          properties:
+            totalQuestsCompleted:
+              type: integer
+            totalXPEarned:
+              type: integer
+            currentPowerLevel:
+              type: integer
+
+    Quest:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - type
+        - xpReward
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        classId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [daily, weekly, special]
+        xpReward:
+          type: integer
+        status:
+          type: string
+          enum: [active, completed, expired]
+        createdAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+
+    QuestCompletion:
+      type: object
+      required:
+        - id
+        - questId
+        - baseXp
+        - multiplier
+        - totalXp
+        - completedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        questId:
+          type: string
+          format: uuid
+        questTitle:
+          type: string
+        baseXp:
+          type: integer
+        multiplier:
+          type: number
+        totalXp:
+          type: integer
+        completedAt:
+          type: string
+          format: date-time
+        streakAtCompletion:
+          type: integer
+
+    QuickCompleteRequest:
+      type: object
+      required:
+        - questId
+      properties:
+        questId:
+          type: string
+          format: uuid
+
+    QuickCompleteResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            xpGained:
+              type: integer
+            levelUp:
+              type: boolean
+            newLevel:
+              type: integer
+            streak:
+              type: integer
+            multiplier:
+              type: number
+            updatedQuest:
+              $ref: '#/components/schemas/Quest'
+
+    CreateGoalRequest:
+      type: object
+      required:
+        - title
+        - description
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+
+    CreateGoalResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            goalId:
+              type: string
+              format: uuid
+            classId:
+              type: string
+              format: uuid
+            className:
+              type: string
+            classDescription:
+              type: string
+
+    CreateClassRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        description:
+          type: string
+          maxLength: 200
+
+    CreateClassResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/CharacterClass'
+
+    CharacterClass:
+      type: object
+      required:
+        - id
+        - name
+        - level
+        - currentXp
+        - totalXp
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        level:
+          type: integer
+          minimum: 1
+          maximum: 30
+        currentXp:
+          type: integer
+        totalXp:
+          type: integer
+        attributes:
+          type: object
+          properties:
+            strength:
+              type: integer
+            intelligence:
+              type: integer
+            creativity:
+              type: integer
+            discipline:
+              type: integer
+        skills:
+          type: array
+          items:
+            type: string
+        evolutionReady:
+          type: boolean
+
+paths:
+  /dashboard:
+    get:
+      summary: Get dashboard data
+      description: Retrieve all dashboard data including quests, stats, and recent activity
+      operationId: getDashboard
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Dashboard data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/DashboardData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /dashboard/quick-complete:
+    post:
+      summary: Quick complete a quest
+      description: Complete a quest and update XP, streak, and stats
+      operationId: quickCompleteQuest
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuickCompleteRequest'
+      responses:
+        '200':
+          description: Quest completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuickCompleteResponse'
+        '400':
+          description: Bad request (invalid quest ID or already completed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Quest not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /goals:
+    post:
+      summary: Create a new goal
+      description: Create a goal and generate associated character class
+      operationId: createGoal
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGoalRequest'
+      responses:
+        '201':
+          description: Goal created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateGoalResponse'
+        '400':
+          description: Bad request (invalid input)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /classes:
+    post:
+      summary: Create a character class
+      description: Create a new character class without a goal
+      operationId: createClass
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClassRequest'
+      responses:
+        '201':
+          description: Class created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateClassResponse'
+        '400':
+          description: Bad request (invalid input)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

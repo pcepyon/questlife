@@ -114,17 +114,18 @@ npm run typecheck       # TypeScript check
 4. Unit tests (calculations)
 
 ## Recent Changes
+- [2025-09-20] Data persistence implementation - Dashboard real data, quest persistence
 - [2025-09-13] QuestLife 2.0 - Dashboard-centered redesign with PIN auth
 - [2025-09-13] Added navigation system and onboarding flow
-- [2025-09-12] Korean localization completed (branch 002)
 
 ## Development Focus
-- **Current Priority**: PIN auth → Navigation → Dashboard → UI enhancements
+- **Current Priority**: Data persistence → API integration → State sync
 - **UI Approach**: Dashboard-first, Korean-first interface
 - **Navigation**: React Router v6 with 4 main tabs
-- **Performance**: Dashboard caching, quick quest completion
+- **Performance**: Dashboard caching (5min TTL), optimistic updates
 - **Testing**: TDD with contract tests first
 - **Components**: shadcn/ui directly, no wrappers
+- **Data Flow**: Zustand → API → SQLite with transactions
 
 ## Environment Variables
 ```env
